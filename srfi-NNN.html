@@ -1,0 +1,218 @@
+
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SRFI ###: Raw String Syntax</title>
+<link href="/favicon.png" rel="icon" sizes="192x192" type="image/png" />
+<link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css" />
+<style>code { background-color: #dedede;pre { font-size: 12pt; }</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" /></meta></head>
+<h1><a href="https://srfi.schemers.org/"><img class="srfi-logo" src="https://srfi.schemers.org/srfi-logo.svg" alt="SRFI surfboard logo" /></a>###: Raw String Syntax</h1>
+<p>By: Peter McGoron</p>
+<h2>Status</h2>
+<h2>Abstract</h2>
+<p>Raw string syntax are lexical syntax for strings that do not interpret
+escapes inside of them. They are useful in cases where the string data
+has a lot of characters like <code>\</code> or <code>&quot;</code> that would otherwise have
+to be escaped. The raw string syntax in this document is derived from
+C++11's raw string literals.</p>
+<h2>Issues</h2>
+<ul>
+<li>
+<p>What are the characters that should be excluded from delimiters? The current approach is too complicated.</p></li>
+<li>
+<p>John Cowan <a href="https://codeberg.org/scheme/r7rs/issues/32#issuecomment-8863095">suggested</a> <code>#&quot;id&quot;text&quot;id&quot;</code> syntax, which would make the grammar simpler.</p></li>
+<li>
+<p>Daphne Preston-Kendal's <a href="https://codeberg.org/dpk/presrfis/src/branch/master/docstrings.md">proposal</a> would be to have <code>#&quot;</code> and <code>&quot;#</code> make raw strings.
+The sequence <code>#&quot;</code> would start a raw string, and it would be terminated by <code>&quot;#</code>. Raw strings can be nested like block comments.
+If one wants to include <code>#&quot;</code> or <code>&quot;#</code> in the raw string, then they can be escaped with <code>\#&quot;</code> and <code>\&quot;#</code>.
+No other escape sequence exists. If <code>\</code> is not followed by <code>#&quot;</code> or <code>&quot;#</code>, then the <code>\</code> is preserved in the string.</p></li></ul>
+<h2>Rationale</h2>
+<p>Many programming languages have raw string syntax: to name a few,
+<a href="https://doc.rust-lang.org/reference/tokens.html#grammar-RAW_STRING_LITERAL">Rust</a>,
+<a href="https://en.cppreference.com/w/cpp/language/string_literal.html">C++</a>,
+<a href="https://docs.python.org/3/reference/lexical_analysis.html#raw-strings">Python</a>,
+<a href="https://go.dev/ref/spec#String_literals">Go</a>,
+<a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/raw-string">C#</a>,
+and <a href="https://ziglang.org/documentation/master/#Multiline-String-Literals">Zig</a>.
+For a more complete list of languages referenced while making this proposal,
+see <a href="https://codeberg.org/scheme/r7rs/wiki/Raw-String-Literals-in-Other-Languages">this wiki page</a>.</p>
+<p>Scheme implementations generally do not have raw string syntax. Two exceptions
+are
+<a href="https://wiki.call-cc.org/man/5/Extensions%20to%20the%20standard#multiline-string-constant">CHICKEN</a>
+and
+<a href="https://gambitscheme.org/latest/manual/#String-syntax">Gambit</a>,
+which use <a href="https://www.gnu.org/software/bash/manual/bash.html#Here-Documents">heredoc</a>
+style syntax. Both are Scheme→C compilers that require inserting
+C code into their Scheme programs.
+Some Scheme implementations have the ability to extend their readers,
+so some have raw strings as external extensions. A reader extension
+for a similar syntax for raw strings is available for <a href="https://github.com/lloda/guile-raw-strings">Guile</a>.
+Daphne Preston-Kendall proposed a syntax for raw strings using <code>#&quot;</code> in
+<a href="https://codeberg.org/dpk/presrfis/src/branch/master/docstrings.md">another document</a>.</p>
+<p>The matter of raw string syntax in the <i>R<sup>7</sup>RS</i>-large was discussed 
+in a WG2 meeting on <a href="https://codeberg.org/scheme/r7rs/wiki/Minutes+2025-11-21.-">November 21st, 2025</a>
+with no consensus. It has also been discussed on the
+<a href="https://codeberg.org/scheme/r7rs/issues/32">issue tracker</a>
+for the <i>R<sup>7</sup>RS</i>-Large process.</p>
+<p>This SRFI proposes the use of  raw strings based off of C++'s syntax.
+C++'s syntax is a raw string syntax with a customizable delimiter that
+allows for the use of a wide variety of characters.  The syntax is nearly
+identical, with the exception that <code>#&quot;</code> is used as the prefix instead of
+<code>R&quot;</code>. Examples of raw strings and their equivalent regular Scheme strings:</p><code>
+<pre>#&quot;(a)&quot; ; =&gt; &quot;a&quot;
+#&quot;(\begin{document})&quot; ; =&gt; &quot;\\begin{document}&quot;
+#&quot;--()&quot;)&quot;)&quot;-&quot;)--)&quot; ; =&gt; &quot;)\&quot;)\&quot;)-\&quot;)&quot;</pre></code>
+<p>The use of a customizable delimiter means that extra whitespaces
+are not required before and after the string when the raw string ends
+with the text <code>)&quot;</code>. When customizable delimiters with a wide variety
+of characters cannot be used (like
+in Rust or <a href="https://spec.commonmark.org/0.31.2/#code-spans">Markdown</a>), some strings require spaces after the left delimiter and
+before the right delimiter: For example, <code>`` `markdown code spans containing code spans` ``</code>.</p>
+<p>C++ style strings have the benefit that they are convenient for inline raw
+strings and multiline raw strings, unlike heredoc-style syntax, which
+is cumbersome for single line raw strings.</p>
+<p>This SRFI does not handle leading, trailing, or indentation whitespace in
+any special way: they are all preserved in the resultant string. This is
+the least surprising option, and further string processing can be done
+by the programmer. This is the behavior of Rust and C++. Other languages
+like C# have special whitespace handling.</p>
+<p>Some &quot;raw&quot; string syntaxes allow for interpolation, or have different
+types of escape sequences. String interpolation in Scheme is the
+subject of <a href="https://srfi.schemers.org/srfi-109">SRFI-109</a>. Interpolation makes string processing much more
+complicated and is not extensible, while also not making the strings
+truly &quot;raw.&quot; Interpolation of strings in Scheme is better accomplished by
+<code>syntax-case</code> macros.</p>
+<p>Equivalent syntax for string notated bytevectors in <a href="https://srfi.schemers.org/srfi-207">SRFI-207</a> or for
+vertical-bar identifiers is not included.</p>
+<h2>Specification</h2>
+<p>The grammar of raw strings is not context free. The following
+grammar describes the creation of a raw string literal for any valid
+delimiter <var>X</var>:</p>
+<center>
+<p><var>⟨raw string (X)⟩</var> ⩴ <code>#&quot;</code> <var>X</var> <code>(</code> <var>⟨raw string internal (X)⟩</var> <code>)</code> <var>X</var> <code>&quot;</code></p>
+<p><var>⟨raw string internal (X)⟩</var> ⩴ Zero or more characters that do not contain <code>)</code> <var>X</var> <code>&quot;</code> as a subsequence</p>
+<p><var>⟨valid delimiter⟩</var> ⩴ <var>⟨peculiar identifier⟩</var> | <var>⟨subsequent⟩</var><sup>*</sup></p></center>
+<p>The productions <var>⟨peculiar identifier⟩</var> and <var>⟨subsequent⟩</var> are
+defined in the <i>R<sup>7</sup>RS</i>.</p>
+<p>In summary, a valid delimiter <var>X</var> is either empty, or a sequence of
+characters that can make up the inside of an identifier if that identifier
+had a valid initial character and was not written using vertical bars.
+This allows identifiers as well as sequences that start with number
+digits.
+An implementation may add more characters that make up a valid delimiter,
+but <code>(</code>, <code>[</code>, <code>{</code>, and any space characters can never be a part of a
+valid delimiter.</p>
+<p>If there are other pairs of characters that are equivalent to <code>(</code> and
+<code>)</code>, then those characters can also be used in place of <code>(</code> and <code>)</code> in
+the raw string syntax. In particular, systems that conform to the <i>R<sup>6</sup>RS</i>
+must allow raw strings using <code>[</code> and <code>]</code>: for example, <code>#&quot;[a]&quot;</code>.</p>
+<p>A raw string evaluates to a string. They are allowed wherever a regular
+Scheme string is allowed. The grammar of Scheme is modified so that
+the <var>⟨string⟩</var> production becomes</p>
+<center>
+<p><var>⟨string⟩</var> ⩴ <code>&quot;</code> <var>⟨string element⟩</var><sup>*</sup> <code>&quot;</code>
+| <var>⟨raw string (X)⟩</var> for any valid delimiter <var>X</var></p></center>
+<p>In particular, raw strings are allowed in the <code>include</code> and
+<code>include-library-declaration</code> forms described in the <i>R<sup>7</sup>RS</i>.</p>
+<p>The following examples all evaluate to <code>#t</code>.</p><code>
+<pre>(string=? &quot;&quot; #&quot;()&quot;)
+(string=? &quot;a&quot; #&quot;(a)&quot;)
+(string=? &quot;\&quot;&quot; #&quot;(&quot;)&quot;)
+(string=? &quot;\\&quot; #&quot;(\)&quot;)
+(string=? &quot;\\\&quot; #&quot;(\&quot;)&quot;)
+(string=? &quot;#\&quot;()\&quot;&quot; #&quot;-(#&quot;()&quot;)-&quot;)
+(string=? &quot;ends with )&quot; #&quot;-(ends with ))-&quot;)
+(string=? &quot;multiline\nstring&quot; #&quot;(multiline
+string)&quot;)
+(string=? &quot;\n    no whitespace stripping&quot; #&quot;(
+    no whitespace stripping)&quot;)</pre></code>
+<p>The following example shows how a raw string can be used to embed other
+syntaxes as a string. The syntax inside of the string is <a href="https://srfi.schemers.org/srfi-119">SRFI-119</a>
+wisp syntax.</p><code>
+<pre>#&quot;EOF(
+define: hello-name name
+  string-append &quot;Hello,&quot; name &quot;!&quot;
+)EOF&quot;
+; ⇒ &quot;\ndefine: hello-name name\n  string-append \&quot;Hello,\&quot; name \&quot;!\&quot;\n&quot;</pre></code>
+<h2>Implementation</h2>
+<p>A portable implementation is impossible in general. However, some
+implementations allow modifying the reader. The following code
+works with CHICKEN-5 and Guile 3.</p>
+<p>The last part doubles as a simple test suite.</p><code>
+<pre>(import (srfi 1))
+
+(define (read-raw-string port)
+  ;; This parser starts reading after `&quot;`.
+  ;; In the given examples, the parser starts at the dot:
+  ;; 
+  ;; #&quot;.(asdf)&quot;
+  ;; #&quot;.--(#&quot;()&quot;--)&quot;
+  (define (read-char* location)
+    (let ((ch (read-char port)))
+      (if (eof-object? ch)
+          (error (list &quot;eof in raw string literal&quot; location))
+          ch)))
+  (define (read-delimiter whole-delimiter n delimiter)
+    (if (null? delimiter)
+        '()
+        (let ((ch (read-char* 'check)))
+          (cond
+            ((char=? ch (car delimiter))
+             (read-delimiter whole-delimiter (+ n 1) (cdr delimiter)))
+            (else (append (take whole-delimiter n)
+                          (read-raw whole-delimiter ch)))))))
+  (define (read-raw delimiter ch)
+    (cond
+      ((char=? ch (car delimiter))
+       (read-delimiter delimiter 1 (cdr delimiter)))
+      (else (cons ch (read-raw delimiter (read-char* 'read))))))
+  (let ((delimiter
+         (let loop ((acc '()))
+           (let ((ch (read-char* 'open)))
+             (cond
+               ((char=? ch #\()
+                (cons #\) (reverse (cons #\&quot; acc))))
+               ((char=? ch #\[)
+                (cons #\] (reverse (cons #\&quot; acc))))
+               (else (loop (cons ch acc))))))))
+     (list-&gt;string (read-raw delimiter (read-char* 'read)))))
+
+(cond-expand
+  (chicken (import (chicken read-syntax))
+           (set-sharp-read-syntax! #\&quot; read-raw-string))
+  (guile (read-hash-extend #\&quot;
+                           (lambda (_ port)
+                             (read-raw-string port))))
+  (else (error &quot;your implementation is not supported&quot;)))
+
+(define (test x y)
+  (display (string=? x y)) (newline))
+
+(test &quot;&quot; #&quot;()&quot;)
+(test &quot;a&quot; #&quot;(a)&quot;)
+(test &quot;\&quot;&quot; #&quot;(&quot;)&quot;)
+(test &quot;\\&quot; #&quot;(\)&quot;)
+(test &quot;\\\&quot;&quot; #&quot;(\&quot;)&quot;)
+(test &quot;#\&quot;()\&quot;&quot; #&quot;-(#&quot;()&quot;)-&quot;)
+(test &quot;ends with )&quot; #&quot;-(ends with ))-&quot;)
+(test &quot;multiline\nstring&quot; #&quot;(multiline
+string)&quot;)
+(test &quot;\n    no whitespace stripping&quot; #&quot;(
+    no whitespace stripping)&quot;)</pre></code>
+<h2>Acknowledgments</h2>
+<p>The original <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2146.html">C++ proposal</a>
+was written by Bemen Dawes. The last
+<a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2442.htm">C++ proposal</a>
+was written by Bemen Dawes and Lawrence Crowl. The raw string syntax
+was ratified in C++11.</p>
+<p>The choice of <code>#&quot;</code> was copied from Daphne Preston-Kendall.</p>
+<p>Thanks to the members of WG2 who discussed the issue.</p>
+<h2>Copyright</h2>
+<p>© 2025 Peter McGoron</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+</p>
+<p>The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</p></html>
