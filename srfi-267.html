@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png" />
     <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css" />
     <style>
-      code { background-color: #dedede;pre { font-size: 12pt; }
+      code { background-color: #dedede; } pre { font-size: 12pt; }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
@@ -26,7 +26,7 @@ SPDX-License-Identifier: MIT
   <h2>Status</h2>
   <h2>Abstract</h2>
   <p>
-    Raw string syntax are lexical syntax for strings that do not interpret escapes
+    Raw string syntax is lexical syntax for strings that do not interpret escapes
     inside of them. They are useful in cases where the string data has a lot of
     characters like <code>\</code> or <code>&quot;</code> that would otherwise have to
     be escaped. The raw string syntax in this document is derived from C++11's raw
@@ -104,13 +104,13 @@ SPDX-License-Identifier: MIT
     readers, so some have raw strings as external extensions. A reader extension for a
     similar syntax for raw strings is available for
     <a href="https://github.com/lloda/guile-raw-strings">Guile</a>. Daphne
-    Preston-Kendall proposed a syntax for raw strings using <code>#&quot;</code> in
+    Preston-Kendal proposed a syntax for raw strings using <code>#&quot;</code> in
     <a href="https://codeberg.org/dpk/presrfis/src/branch/master/docstrings.md"
       >another document</a
     >.
   </p>
   <p>
-    The matter of raw string syntax in the <i>R<sup>7</sup>RS</i>-large was discussed in
+    The matter of raw string syntax in the <i>R<sup>7</sup>RS</i> Large was discussed in
     a WG2 meeting on
     <a href="https://codeberg.org/scheme/r7rs/wiki/Minutes+2025-11-21.-"
       >November 21st, 2025</a
@@ -120,7 +120,7 @@ SPDX-License-Identifier: MIT
     for the <i>R<sup>7</sup>RS</i>-Large process.
   </p>
   <p>
-    This SRFI proposes the use of raw strings based off of C++'s syntax. C++'s syntax is
+    This SRFI proposes the use of raw strings based on C++'s syntax. C++'s syntax is
     a raw string syntax with a customizable delimiter that allows for the use of a wide
     variety of characters. The syntax is nearly identical, with the exception that
     <code>#&quot;</code> is used as the prefix instead of <code>R&quot;</code>. Examples
@@ -143,9 +143,9 @@ SPDX-License-Identifier: MIT
     <code>`` `markdown code spans containing code spans` ``</code>.
   </p>
   <p>
-    C++ style strings have the benefit that they are convenient for inline raw strings
-    and multiline raw strings, unlike heredoc-style syntax, which is cumbersome for
-    single line raw strings.
+    C++-style strings have the benefit that they are convenient for inline raw strings
+    and multi-line raw strings, unlike heredoc-style syntax, which is cumbersome for
+    single-line raw strings.
   </p>
   <p>
     This SRFI does not handle leading, trailing, or indentation whitespace in any
@@ -157,19 +157,19 @@ SPDX-License-Identifier: MIT
   <p>
     Some &quot;raw&quot; string syntaxes allow for interpolation, or have different
     types of escape sequences. String interpolation in Scheme is the subject of
-    <a href="https://srfi.schemers.org/srfi-109">SRFI-109</a>. Interpolation makes
+    <a href="https://srfi.schemers.org/srfi-109">SRFI 109</a>. Interpolation makes
     string processing much more complicated and is not extensible, while also not making
     the strings truly &quot;raw.&quot; Interpolation of strings in Scheme is better
     accomplished by <code>syntax-case</code> macros.
   </p>
   <p>
-    Equivalent syntax for string notated bytevectors in
-    <a href="https://srfi.schemers.org/srfi-207">SRFI-207</a> or for vertical-bar
+    Equivalent syntax for string-notated bytevectors in
+    <a href="https://srfi.schemers.org/srfi-207">SRFI 207</a> or for vertical-bar
     identifiers is not included.
   </p>
   <h2>Specification</h2>
   <p>
-    The grammar of raw strings is not context free. The following grammar describes the
+    The grammar of raw strings is not context-free. The following grammar describes the
     creation of a raw string literal for any valid delimiter <var>X</var>:
   </p>
   <center>
@@ -243,7 +243,7 @@ string)&quot;)
   <p>
     The following example shows how a raw string can be used to embed other syntaxes as
     a string. The syntax inside of the string is
-    <a href="https://srfi.schemers.org/srfi-119">SRFI-119</a> wisp syntax.
+    <a href="https://srfi.schemers.org/srfi-119">SRFI 119</a> wisp syntax.
   </p>
   <code>
     <pre>
@@ -267,7 +267,7 @@ define: hello-name name
 (define (read-raw-string port)
   ;; This parser starts reading after `&quot;`.
   ;; In the given examples, the parser starts at the dot:
-  ;; 
+  ;;
   ;; #&quot;.(asdf)&quot;
   ;; #&quot;.--(#&quot;()&quot;--)&quot;
   (define (read-char* location)
@@ -337,7 +337,7 @@ string)&quot;)
     was written by Bemen Dawes and Lawrence Crowl. The raw string syntax was ratified in
     C++11.
   </p>
-  <p>The choice of <code>#&quot;</code> was copied from Daphne Preston-Kendall.</p>
+  <p>The choice of <code>#&quot;</code> was copied from Daphne Preston-Kendal.</p>
   <p>Thanks to the members of WG2 who discussed the issue.</p>
   <h2>Copyright</h2>
   <p>© 2025 Peter McGoron</p>
