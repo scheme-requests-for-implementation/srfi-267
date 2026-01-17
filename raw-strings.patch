@@ -1,0 +1,52 @@
+diff --git a/s/read.ss b/s/read.ss
+index 2a01351..5acbef9 100644
+--- a/s/read.ss
++++ b/s/read.ss
+@@ -454,6 +454,7 @@
+       [#\[ (nonstandard "#[...] record") (state-return record-brack #f)]
+       [#\{ (nonstandard "#{...} gensym") (*state rd-token-gensym)]
+       [#\& (nonstandard "#& box") (state-return box #f)]
++      [#\" (nonstandard "#\" raw string literals") (*state rd-token-raw-string '(#\"))]
+       [#\; (if (eq? (rcb-who rcb) 'read-token)
+                (state-return quote 'datum-comment)
+                (xmvlet (() (xcall rd-expression-comment)) (*state rd-token)))]
+@@ -801,6 +802,39 @@
+     (or (char=? c #\tab)
+         (eq? (char-general-category c) 'Zs))))
+
++(define-state (rd-token-raw-string acc)
++  (with-read-char c
++    (state-case c
++      [eof (xcall rd-eof-error "raw string")]
++      [#\" (*state rd-token-raw-string-body (reverse (cons #\" acc)) 0)]
++      [else (*state rd-token-raw-string (cons c acc))])))
++
++(define-state (rd-token-raw-string-body delim i)
++  (with-read-char c
++    (state-case c
++      [eof (xcall rd-eof-error "raw string")]
++      [else (if (char=? c (car delim))
++                (*state rd-token-raw-string-delim-check (cdr delim) i (list c) delim)
++                (with-stretch-buffer i c
++                  (*state rd-token-raw-string-body delim (fx+ i 1))))])))
++
++(define-state (rd-token-raw-string-delim-check to-check i read delim)
++  (if (null? to-check)
++      (state-return atomic (substring tb 0 i))
++      (with-read-char c
++        (state-case c
++          [eof (xcall rd-eof-error "raw string")]
++          [else (if (char=? c (car to-check))
++                    (*state rd-token-raw-string-delim-check (cdr to-check) i (cons c read) delim)
++                    (with-unread-char c
++                      (*state rd-token-raw-string-push-delim i (reverse read) delim)))]))))
++
++(define-state (rd-token-raw-string-push-delim i read delim)
++  (if (null? read)
++      (*state rd-token-raw-string-body delim i)
++      (with-stretch-buffer i (car read)
++        (*state rd-token-raw-string-push-delim (fx+ i 1) (cdr read) delim))))
++
+ (define-state (rd-token-string i)
+   (let ([char-bfp fp])
+     (with-read-char c
