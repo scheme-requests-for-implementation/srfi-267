@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Peter McGoron
+# SPDX-License-Identifier: MIT
 diff --git a/s/read.ss b/s/read.ss
 index 2a01351..5acbef9 100644
 --- a/s/read.ss
