@@ -71,7 +71,7 @@ SPDX-License-Identifier: MIT
         </ul>
         <h2>Abstract</h2>
         <p>
-            Raw string syntax are lexical syntax for strings that do not interpret escapes inside of them. They are
+            Raw string syntax is lexical syntax for strings that do not interpret escapes inside of them. They are
             useful in cases where the string data has a lot of characters like <code>\</code> or
             <code>&quot;</code> that would otherwise have to be escaped. The raw string syntax in this document is
             derived from C++11's raw string literals.
@@ -164,7 +164,7 @@ SPDX-License-Identifier: MIT
         </p>
 
         <p>
-            Equivalent syntax for string notated bytevectors in
+            Equivalent syntax for string-notated bytevectors in
             <a href="https://srfi.schemers.org/srfi-207">SRFI 207</a> or for vertical-bar identifiers is not included.
         </p>
         <h2>Specification</h2>
@@ -232,7 +232,7 @@ define : hello-name name
 ; ⇒ &quot;\ndefine: hello-name name\n  string-append \&quot;Hello,\&quot; name \&quot;!\&quot;\n&quot;</code></pre>
         <p>
             One use of raw strings is in “docstring” documentation, where <code>&quot;</code> and <code>\</code> may be
-            used to document strings. The following example is from Daphne-Preston Kendal:
+            used to document strings. The following example is from Daphne Preston-Kendal:
         </p>
         <pre><code>(define (parse-url url-string)
   #&quot;&quot;Given a URL as a string, returns a Parsed-URL record with the
