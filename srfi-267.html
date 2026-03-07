@@ -157,7 +157,7 @@ SPDX-License-Identifier: MIT
         <p>
             Some “raw” string syntaxes allow for interpolation, or have different types of escape sequences. This
             proposal does not include any support for interpolation. (String interpolation in Scheme is the subject of
-            <a href="https://srfi.schemers.org/srfi-109">SRFI 109</a>.) Interpolation makes string processing much more
+            <a href="https://srfi.schemers.org/srfi-109/">SRFI 109</a>.) Interpolation makes string processing much more
             complicated and is not extensible, while also not making the strings truly “raw.” Interpolation of strings
             in Scheme is better accomplished by macros that can inspect strings, such as
             <code>syntax-case</code> macros.
@@ -165,7 +165,7 @@ SPDX-License-Identifier: MIT
 
         <p>
             Equivalent syntax for string-notated bytevectors in
-            <a href="https://srfi.schemers.org/srfi-207">SRFI 207</a> or for vertical-bar identifiers is not included.
+            <a href="https://srfi.schemers.org/srfi-207/">SRFI 207</a> or for vertical-bar identifiers is not included.
         </p>
         <h2>Specification</h2>
         <p>
@@ -223,7 +223,7 @@ string&quot;&quot; ; → &quot;multiline\nstring&quot;
   ; Example from SRFI 264</code></pre>
         <p>
             The following example shows how a raw string can be used to embed other syntaxes as a string. The syntax
-            inside of the string is <a href="https://srfi.schemers.org/srfi-119">SRFI 119</a> wisp syntax.
+            inside of the string is <a href="https://srfi.schemers.org/srfi-119/">SRFI 119</a> wisp syntax.
         </p>
         <pre><code>#&quot;wisp-EOS&quot;
 define : hello-name name
