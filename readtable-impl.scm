@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 (define (read-raw-string port)
   ;; This parser starts reading after `"`.
   ;; In the given examples, the parser starts at the dot:

@@ -1,3 +1,7 @@
+<!-- SPDX-FileCopyrightText: 2026 Peter McGoron
+
+SPDX-License-Identifier: MIT -->
+
 * Removed issues.
 * Moved issue 3 to Rationale, and expanded discussion
 * Move sample implementation to separate file
