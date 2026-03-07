@@ -1,5 +1,3 @@
-# SPDX-FileCopyrightText: 2026 Peter McGoron
-# SPDX-License-Identifier: MIT
 diff --git a/s/read.ss b/s/read.ss
 index 2a01351..5acbef9 100644
 --- a/s/read.ss
@@ -15,7 +13,7 @@ index 2a01351..5acbef9 100644
 @@ -801,6 +802,39 @@
      (or (char=? c #\tab)
          (eq? (char-general-category c) 'Zs))))
-
+ 
 +(define-state (rd-token-raw-string acc)
 +  (with-read-char c
 +    (state-case c
