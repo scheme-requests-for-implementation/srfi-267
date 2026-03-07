@@ -7,7 +7,7 @@
 
 
 
-keywords: [[https://srfi.schemers.org/?keywords=syntax][Syntax]]
+keywords: [[https://srfi.schemers.org/?keywords=reader-syntax][Reader Syntax]]
 
 This repository hosts [[https://srfi.schemers.org/srfi-267/][SRFI 267]]: Raw String Syntax, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
