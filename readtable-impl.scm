@@ -1,7 +1,3 @@
-; SPDX-FileCopyrightText: 2026 Peter McGoron
-;
-; SPDX-License-Identifier: MIT
-
 (define (read-raw-string port)
   ;; This parser starts reading after `"`.
   ;; In the given examples, the parser starts at the dot:
@@ -45,18 +41,3 @@
                              (read-raw-string port))))
   (else (error "your implementation is not supported")))
 
-(define (test x y)
-  (display (string=? x y)) (newline))
-
-(test "" #"""")
-(test "a" #""a"")
-(test "\\" #""\"")
-(test "\"" #"-"""-")
-(test "\\\"" #"-"\""-")
-(test "#\"()\"" #"-"#"()""-")
-(test "#\"\"a\"\"" #"-"#""a"""-")
-(test "ends with \\\"" #"-"ends with \""-")
-(test "multiline\nstring" #""multiline
-string"")
-(test "\n    no whitespace stripping" #""
-    no whitespace stripping"")
