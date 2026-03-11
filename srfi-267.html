@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
     <!--
-SPDX-FileCopyrightText: 2025 Peter McGoron
+SPDX-FileCopyrightText: 2025-2026 Peter McGoron
 SPDX-License-Identifier: MIT
 -->
     <head>
@@ -165,10 +165,27 @@ SPDX-License-Identifier: MIT
         </p>
 
         <p>
+           This SRFI also includes procedures to read and write raw strings to ports.
+           This SRFI does not have any procedure that automatically generates delimiters for strings.
+           This is a tricky problem, and there are multiple approaches each
+           with their own pitfalls that can be caused by pathological strings.
+           As such, a single API is not a good approach. Some approaches for generating delimiters:
+        </p>
+           <ul>
+           <li>Scan the string for a character that is not in the string, and
+               use that as the delimiter.</li>
+           <li>Randomly generate strings from a set that has some good finite
+               probability of finding an acceptable delimiter, and checking
+               <code>can-delimit?</code> for each sample.</li>
+           <li>Use a fancy string algorithm to find the smallest non-enclosed substring.</li>
+           </ul>
+
+        <p>
             Equivalent syntax for string-notated bytevectors in
             <a href="https://srfi.schemers.org/srfi-207/">SRFI 207</a> or for vertical-bar identifiers is not included.
         </p>
         <h2>Specification</h2>
+        <h3>Syntax</h3>
         <p>
             The grammar of raw strings is not context free. The following grammar describes the creation of a raw string
             literal for any valid delimiter <var>X</var>:
@@ -202,6 +219,39 @@ SPDX-License-Identifier: MIT
             example, raw strings are allowed in the <code>include</code> and
             <code>include-library-declaration</code> forms described in the <i>R<sup>7</sup>RS</i>.
         </p>
+        <h3>Procedures</h3>
+        <p>These procedures are exported from <code>(SRFI 267)</code> in implementations of the <i>R<sup>7</sup>RS</i>. The SRFI 261 and
+        SRFI 97 library name for this library is <code>raw-strings</code>.</p>
+        <p>It is an error to call these procedures on closed ports, to call a read procedure on a non-input port,
+        and to call a write procedure on a non-output port. The argument names follow the same conventions as the <i>R<sup>7</sup>RS</i>. Brackets denote optional arguments.</p>
+
+        <h4><code>(raw-string-read-error? obj)</code> — procedure</h4>
+        <p>See <code>read-raw-string</code>.</p>
+        <h4><code>(raw-string-write-error? obj)</code> — procedure</h4>
+        <p>See <code>write-raw-string</code>.</p>
+
+        <h4><code>(read-raw-string [input-port])</code> — procedure</h4>
+        <p>Read a raw string from the port and returns a string. The port defaults to <code>(default-input-port)</code>.
+        If there is no raw string at that input position, an error satisfying <code>raw-string-read-error?</code>
+        is raised.
+        </p>
+        <h4><code>(read-raw-string-after-prefix [input-port])</code> — procedure</h4>
+        <p>Like <code>read-raw-string</code>, except that the reading starts from after <code>#"</code>.</p>
+
+        <h4><code>(can-delimit? string<sub>1</sub> string<sub>2</sub>)</code> — procedure</h4>
+        <p>Returns true if <var>string<sub>2</sub></var> would be produced from
+        <var>⟨valid delimiter⟩</var> and if <var>string<sub>1</sub></var> would be produced from
+        <var>⟨raw string internal (string<sub>2</sub>)⟩</var>.
+        </p>
+
+        <h4><code>(write-raw-string string<sub>1</sub> string<sub>2</sub> [output-port])</code> — procedure</h4>
+        <p>Write string<sub>1</sub> as a raw string to the port. The port defaults to <code>(default-output-port)</code>.
+        The <code>string<sub>2</sub></code> will be used as the delimiter for the
+        raw string. If <code>(not (can-delimit? string<sub>1</sub> string<sub>2</sub>)</code>
+        then an error satisfying <code>raw-string-write-error?</code> is raised.
+        </p>
+        <p>This procedure returns an unspecified value.</p>
+
         <h3>Examples</h3>
         <small><em>This section is non-normative.</em></small>
         <pre><code>#&quot;&quot;&quot;&quot; ; → &quot;&quot;
@@ -246,11 +296,15 @@ components of that URL.
         <h2>Implementation</h2>
         <p>
             A portable implementation is impossible in general. However, some implementations, such as CHICKEN, Guile,
-            Racket, and Sagittarius allow modifying the reader.
-            <a href="readtable-impl.scm">This sample implementation</a> works with CHICKEN-5 and Guile 3, and also
-            includes some tests at the bottom of the file.
+            Racket, and Sagittarius allow modifying the reader. A portable implementation of the procedures is
+            possible, however.
         </p>
-        <p>A <a href="raw-strings.patch">patch</a> is available for Chez Scheme 10.3.0 that implements this SRFI.</p>
+
+        <p>
+            The repository of this SRFI has a <i>R<sup>7</sup>RS</i> implementation of the procedures, and some code to make
+            the raw string syntax work in CHICKEN-5. It also contains a patch for the Chez 10.3.0 reader
+            that implements the reader syntax portion of this SRFI.
+        </p>
         <h2>Acknowledgments</h2>
         <p>
             The original <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2146.html">C++ proposal</a>
@@ -262,7 +316,8 @@ components of that URL.
             The choice of <code>#&quot;</code> was copied from Daphne Preston-Kendal. John Cowan suggested double quotes
             in place of balanced parentheses for raw strings and also gave some editorial advice.
         </p>
-        <p>Thanks to the members of WG2 and others who discussed the issue.</p>
+        <p>Thanks to the members of WG2 and others who discussed the issue. The idea of adding procedures for
+           reading and writing raw strings came from WG2 meetings.</p>
         <h2>Copyright</h2>
         <p>© 2025–2026 Peter McGoron</p>
         <p>
