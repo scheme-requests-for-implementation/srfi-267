@@ -47,6 +47,14 @@
                (else (fail `(,name write-raw-string bad failed))))
         (write-raw-string expected bad-delimiter)
         (fail `(,name write-raw-string bad failed))))
+  ;; Does `generate-delimiter` work properly?
+  (let* ((delim (generate-delimiter expected))
+         (output-port (open-output-string))
+         (_ (write-raw-string expected delim output-port))
+         (input-port (open-input-string (get-output-string output-port))))
+    (if (equal? expected (read-raw-string input-port))
+        (write* `(,name generate-delimiter passed))
+        (fail `(,name generate-delimiter failed ,delim ,expected))))
 )
 
 (test "empty"
@@ -180,3 +188,9 @@ components of that URL.
            (write* `("read after prefix fails on EOF in string" success)))
           (else (fail `("read after prefix fails on EOF in string" failed))))
   (read-raw-string (open-input-string #"-"ab"abcd"-")))
+
+(if (can-delimit? "x" "\"")
+    (fail `("can delimit fails with double quote in delimiter"
+            failed))
+    (write* `("can delimit fails with double quote in delimiter"
+              success)))
