@@ -16,18 +16,40 @@ SPDX-License-Identifier: MIT
         <meta charset="utf-8" />
         <title>SRFI 267: Raw String Syntax</title>
         <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png" />
-        <link rel="stylesheet" href="srfi-with-dark-mode.css" type="text/css" />
+        <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css" />
         <style>
             @media (prefers-color-scheme: light) {
+              :root {
+                --background-color: white;
+                --link-color: blue;
+                --text-color: black;
+                --visited-link-color: purple;
+              }
               code {
                   background-color: #dedede;
               }
             }
 
             @media (prefers-color-scheme: dark) {
+              :root {
+                --background-color: #161616;
+                --link-color: SkyBlue;
+                --text-color: #e0e0e0;
+                --visited-link-color: Orchid;
+              }
               code {
                 background-color: #484848;
               }
+            }
+            a {
+              color: var(--link-color);
+            }
+            a:visited {
+              color: var(--visited-link-color);
+            }
+            body {
+              background-color: var(--background-color);
+              color: var(--text-color);
             }
             pre code {
                 background-color: transparent;
