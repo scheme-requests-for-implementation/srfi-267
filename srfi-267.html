@@ -4,14 +4,30 @@
 SPDX-FileCopyrightText: 2025-2026 Peter McGoron
 SPDX-License-Identifier: MIT
 -->
+<!-- Draft #5 changes:
+    1. Add clarification of the contents of the raw string after reading.
+    2. Wording changes.
+    3. Add important properties to abstract.
+    4. Add a dark mode.
+    5. State that the ⟨raw string⟩ grammar is informal, as much of it
+       cannot be expressed in the Report's EBNF formalism.
+-->
     <head>
         <meta charset="utf-8" />
         <title>SRFI 267: Raw String Syntax</title>
         <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png" />
-        <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css" />
+        <link rel="stylesheet" href="srfi-with-dark-mode.css" type="text/css" />
         <style>
-            code {
-                background-color: #dedede;
+            @media (prefers-color-scheme: light) {
+              code {
+                  background-color: #dedede;
+              }
+            }
+
+            @media (prefers-color-scheme: dark) {
+              code {
+                background-color: #484848;
+              }
             }
             pre code {
                 background-color: transparent;
@@ -21,6 +37,8 @@ SPDX-License-Identifier: MIT
             }
             .centered {
                 text-align: center;
+                border: solid;
+                padding: 1em;
             }
             .latex {
                 text-transform: uppercase;
@@ -74,13 +92,17 @@ SPDX-License-Identifier: MIT
         </ul>
         <h2>Abstract</h2>
         <p>
-            Raw string syntax is lexical syntax for strings that do not interpret escapes inside of them. They are
-            useful in cases where the string data has a lot of characters like <code>\</code> or
-            <code>&quot;</code> that would otherwise have to be escaped. The raw string syntax in this document is
-            derived from C++11's raw string literals.
+            Raw strings are a lexical syntax for strings that do
+            not interpret escapes inside of them and are useful in
+            cases where the string data has a lot of characters such as
+            <code>\</code> or <code>&quot;</code> that would otherwise
+            have to be escaped. This SRFI proposes a raw string syntax that
+            allows for a customized delimiter to enclose the character
+            data. Importantly, for any string, there exists a delimiter
+            such that the raw string using that delimiter can represent
+            the string verbatim. The raw strings in this SRFI do not do
+            any special whitespace handling.
         </p>
-        <h2>Issues</h2>
-        <p>None.</p>
         <h2>Rationale</h2>
         <p>
             Many programming languages have raw string syntax: to name a few,
@@ -92,36 +114,39 @@ SPDX-License-Identifier: MIT
             <a href="https://ziglang.org/documentation/master/#Multiline-String-Literals">Zig</a>. (For a more complete
             list of languages referenced while writing this proposal, see
             <a href="https://codeberg.org/scheme/r7rs/wiki/Raw-String-Literals-in-Other-Languages">this wiki page</a>.)
-            Raw strings are useful when writing SQL, JSON, or code snippets in other programming languages that include
-            double quotes and the backslash.
+            Scheme implementations with raw strings include:
         </p>
-        <p>
-            Scheme implementations generally do not have raw string syntax. Two exceptions are
+        <ul><li>
             <a href="https://wiki.call-cc.org/man/5/Extensions%20to%20the%20standard#multiline-string-constant"
                 >CHICKEN</a
             >
             and
-            <a href="https://gambitscheme.org/latest/manual/#String-syntax">Gambit</a>, which use
-            <a href="https://www.gnu.org/software/bash/manual/bash.html#Here-Documents">heredoc</a> style syntax. Both
-            are Scheme→C compilers that allow inserting C code into their Scheme programs. Some Scheme implementations
-            have the ability for the programmer to extend their readers, so some like
-            <a href="https://github.com/lloda/guile-raw-strings">Guile</a> have raw strings as external extensions.
+            <a href="https://gambitscheme.org/latest/manual/#String-syntax">Gambit</a>, which are Scheme→C compilers
+            that allow for raw C code to be inserted into a Scheme program. Their raw strings use a
+            <a href="https://www.gnu.org/software/bash/manual/bash.html#Here-Documents">heredoc</a> style syntax. 
+            </li>
+            <li> <a href="https://www.gnu.org/software/guile/">Guile</a>, as
+                 <a href="https://github.com/lloda/guile-raw-strings">an external library</a>.
+            </li>
+
+        </ul>
+        <p> There is interest in adding standard raw strings to Scheme.
             Daphne Preston-Kendal proposed a syntax for strings similar to raw strings using <code>#&quot;</code> in
             <a href="https://codeberg.org/dpk/presrfis/src/branch/master/docstrings.md">another document</a>. The matter
             of raw string syntax in the <i>R<sup>7</sup>RS</i>-large was discussed in a WG2 meeting on
-            <a href="https://codeberg.org/scheme/r7rs/wiki/Minutes+2025-11-21.-">November 21st, 2025</a>
-            with no consensus. It has also been discussed on the
+            <a href="https://codeberg.org/scheme/r7rs/wiki/Minutes+2025-11-21.-">November 21st, 2025</a>,
+            with no consensus on the features or syntax. Raw strings have also been discussed on the
             <a href="https://codeberg.org/scheme/r7rs/issues/32">issue tracker</a>
             for the <i>R<sup>7</sup>RS</i>-Large process.
         </p>
         <p>
-            This SRFI proposes the use of raw strings based off of C++'s syntax. C++'s syntax is a raw string syntax
-            with a customized delimiter that allows for the use of a wide variety of characters inside of the
-            delimiter. In this SRFI, raw strings start with the sequence <code>#&quot;</code><var>X</var
+            This SRFI proposes the use of raw strings based on C++'s syntax. C++'s raw string syntax uses
+            <dfn>customized delimiters</dfn>, where the start and end of the string are user-specified.
+            In this SRFI, raw strings start with the sequence <code>#&quot;</code><var>X</var
             ><code>&quot;</code> for any sequence of characters <var>X</var> that does not contain <code>&quot;</code>,
             and are terminated by <code>&quot;</code><var>X</var><code>&quot;</code> for the same <var>X</var>.
         </p>
-        <p>The C++-style raw-string syntax was chosen because it was easy to parse and can embed arbitrary strings:</p>
+        <p>The C++-style raw string syntax was chosen because:</p>
 
         <ul>
             <li> The
@@ -130,20 +155,27 @@ SPDX-License-Identifier: MIT
             uses it for string interpolation.
             </li>
             <li>
-                Since <var>X</var> cannot contain <code>&quot;</code>, a raw string can be read in linear time without
-                using a complicated string-search algorithm like Knuth-Morris-Pratt.
+                Raw strings are easy to parse. Since <var>X</var> cannot
+                contain <code>&quot;</code>, a raw string can be read
+                in linear time without using a complicated string-search
+                algorithm like the Knuth-Morris-Pratt algorithm.
             </li>
             <li>
-                The use of a customized delimiter means that, with a suitable choice of delimiter, a string of characters can be
-                inserted into the source of a Scheme program without any modifications to the contents of the string.
-                When customized delimiters with a wide variety of characters cannot be used, some strings require
-                spaces after the left delimiter and before the right delimiter: for example,
-                <a href="https://spec.commonmark.org/0.31.2/#code-spans">Markdown</a> code spans containing code spans
-                look <code>`` `like this` ``</code>.
+                The use of a customized delimiter means that, with
+                a suitable choice of delimiter, a string can be
+                inserted into the source of a Scheme program verbatim.
+                Without customized delimiters, some disambiguation step
+                is required that makes understanding the syntax more
+                complicated. For example,
+                <a href="https://spec.commonmark.org/0.31.2/#code-spans">CommonMark Markdown</a> code spans containing
+                other code spans
+                are written <code>`` `like this` ``</code> and rendered
+                <code>`like this`</code>: the spaces are trimmed to
+                support the internal <code>`</code>.
             </li>
-            <li>In many cases, the <var>X</var>can be empty, when the string itself does not contain <code>""</code>
+            <li>In many cases, the delimiter can be empty, when the string itself does not contain <code>""</code>
                 and does not end in <code>"</code>. This is true in many cases where raw strings are useful, such
-                as regex or writing snippets of code in other languages in strings.
+                as regex or writing code snippets that do not contain strings.
             </li>
 
             <li>
@@ -154,29 +186,35 @@ SPDX-License-Identifier: MIT
                 the raw string.
             </li>
             <li>
-                C++ style strings have the benefit that they are convenient for inline raw strings and multiline raw
-                strings, unlike heredoc-style syntax, which is cumbersome for single line raw strings.
+                C++ style strings have the benefit that they are convenient for inline and multiline raw
+                strings, unlike heredoc-style syntax, which is cumbersome for single-line raw strings.
             </li>
         </ul>
         <p>
-            Some languages, like C#, have special whitespace handling for raw strings. Others, like Rust and C++, do
-            not. This SRFI does not handle leading, trailing, or indentation whitespace in any special way: they are all
-            preserved in the resultant string. This is the least surprising option, and further string processing can be
-            done by the programmer.
+            This SRFI does not handle leading, trailing, or indentation
+            whitespace in any special way: they are all preserved. This is the least surprising option,
+            and further string processing can be done by the programmer.
+            This is in contrast to some languages, like C#, that have
+            special whitespace handling for raw strings.
         </p>
         <p>
-            Some “raw” string syntaxes allow for interpolation, or have different types of escape sequences. This
-            proposal does not include any support for interpolation. (String interpolation in Scheme is the subject of
-            <a href="https://srfi.schemers.org/srfi-109/">SRFI 109</a>.) Interpolation makes string processing much more
-            complicated and is not extensible, while also not making the strings truly “raw.” Interpolation of strings
-            in Scheme is better accomplished by macros that can inspect strings, such as
+            This proposal does not include any support for
+            interpolation. (String interpolation in Scheme is the
+            subject of
+            <a href="https://srfi.schemers.org/srfi-109/">SRFI 109</a>.)
+            Some “raw” string syntaxes allow for interpolation,
+            or have different types of escape sequences. Interpolation
+            makes string processing much more complicated and is
+            not extensible, while also not making the strings truly
+            “raw.” Interpolation of strings in Scheme is better
+            accomplished by macros that can inspect strings, such as
             <code>syntax-case</code> macros.
         </p>
 
         <p>
            This SRFI also includes procedures to read and write raw strings
            to ports, which are useful when writing human-readable Scheme data,
-           and when the raw-string syntax is used in a non-Scheme data
+           and when the raw string syntax is used in a non-Scheme data
            context.
        </p>
 
@@ -185,16 +223,20 @@ SPDX-License-Identifier: MIT
             <a href="https://srfi.schemers.org/srfi-207/">SRFI 207</a> or for vertical-bar identifiers is not included.
         </p>
         <h2>Specification</h2>
+        <p>All text written in small text is non-normative.</p>
         <h3>Syntax</h3>
         <p>A raw string representing a string <var>S</var> is a sequence of characters
         <code>#"<var>X</var>"<var>S</var>"<var>X</var>"</code>,
         where <var>X</var> is some sequence of characters not containing <code>"</code>,
         and the sequence of characters <code>"<var>X</var>"</code> appear exactly twice in the sequence,
-        right after the first <code>#</code> and as a suffix of the string. It cannot appear anywhere else
+        right after the first <code>#</code> and as a suffix of the sequence. It cannot appear anywhere else
         in the sequence.</p>
         <p>
-            The formal grammar of raw strings is not context free. The following grammar describes the creation of a raw string
-            literal for any valid delimiter <var>X</var>:
+            The grammar of raw strings is not context-free and cannot
+            be described in the context-sensitive EBNF used in the
+            Reports. The following grammar informally describes the
+            creation of a raw string literal for any valid delimiter
+            <var>X</var>:
         </p>
         <div class="centered">
             <p>
@@ -209,10 +251,9 @@ SPDX-License-Identifier: MIT
             <p>
                 <var>⟨valid delimiter⟩</var> ⩴ Any sequence of zero or more characters not including <code>&quot;</code>
             </p>
-            <p><var>⟨raw string⟩</var> ⩴ every string from <var>⟨raw string (X)⟩</var>
+            <p><var>⟨raw string⟩</var> ⩴ every string produced from <var>⟨raw string (X)⟩</var>
            for each <var>X</var> produced from <var>⟨valid delimiter⟩</var></p>
         </div>
-        <p><small>Non-normative comments:</small></p>
         <p><small>If the suffix clause of <var>⟨raw string internal (X)⟩</var>
                were not there, then <code>#"""""</code> (where the encoded string is <code>"</code>)
                would be a valid production, which is ambiguous for a limited lookahead parser. It cannot guess
@@ -224,24 +265,33 @@ SPDX-License-Identifier: MIT
             Although valid delimiters look like strings when used, they do not interpret escape sequences
             inside of them.
         </small></p>
-        <p><small>It is not possible to write a formal definition of <var>⟨raw string⟩</var> in this formalism.</small></p>
-        <p>The grammar of Scheme is modified so that the <var>⟨string⟩</var> production becomes</p>
+        <p>The formal grammar of Scheme is modified so that the <var>⟨string⟩</var> production becomes</p>
         <div class="centered">
             <p>
                 <var>⟨string⟩</var> ⩴ <code>&quot;</code> <var>⟨string element⟩</var><sup>*</sup> <code>&quot;</code> |
                 <var>⟨raw string⟩</var>
             </p>
         </div>
-        <p>
-            A raw string, when read, is a string. They are allowed wherever a regular Scheme string is allowed. For
-            example, raw strings are allowed in the <code>include</code> and
-            <code>include-library-declaration</code> forms described in the <i>R<sup>7</sup>RS</i>.
+        <p>When a raw string is read, the result is a string whose contents are the characters
+           that make up <var>⟨raw string internal (X)⟩</var>.
         </p>
+        <small>
+            Per the grammar, raw strings are allowed wherever a regular Scheme string is allowed.
+            For example, raw strings are allowed in the <code>include</code> and
+            <code>include-library-declaration</code> forms described in the <i>R<sup>7</sup>RS</i>.
+        </small>
         <h3>Procedures</h3>
         <p>These procedures are exported from <code>(SRFI 267)</code> in implementations of the <i>R<sup>7</sup>RS</i>. The SRFI 261 and
         SRFI 97 library name for this library is <code>raw-strings</code>.</p>
-        <p>It is an error to call these procedures on the incorrect number of arguments, on closed ports, to call a read procedure on a non-input port,
-        and to call a write procedure on a non-output port. The argument names follow the same conventions as the <i>R<sup>7</sup>RS</i>. Brackets denote optional arguments.</p>
+        <p>It is an error to call:</p>
+        <ul><li>these procedures with an incorrect number of arguments,</li>
+            <li>these procedures on closed ports,</li>
+            <li>a read procedure on a non-input port,</li>
+            <li>a write procedure on a non-output port,</li>
+            <li>these procedures with the incorrect argument type,
+                as specified in the <i>R<sup>7</sup>RS</i>.</li>
+        </ul>
+        <p>Brackets denote optional arguments.</p>
 
         <h4><code>(raw-string-read-error? obj)</code> — procedure</h4>
         <p>Predicate. See <code>read-raw-string</code>.</p>
@@ -253,6 +303,7 @@ SPDX-License-Identifier: MIT
         If there is no raw string at that input position, an error satisfying <code>raw-string-read-error?</code>
         is raised.
         </p>
+        <small>If an error is raised, the position of the port may be unknown.</small>
         <h4><code>(read-raw-string-after-prefix [input-port])</code> — procedure</h4>
         <p>Like <code>read-raw-string</code>, except that the reading starts from after <code>#"</code>.</p>
 
@@ -262,9 +313,9 @@ SPDX-License-Identifier: MIT
         <var>⟨raw string internal (string<sub>2</sub>)⟩</var>.
         </p>
         <h4><code>(generate-delimiter string)</code> — procedure</h4>
-        <p>Return a string such that <code>(can-delimit? string (generate-delimiter string))</code>.
+        <p>Returns a string such that <code>(can-delimit? string (generate-delimiter string))</code>.
         </p>
-        <small>Non-normative comment: Users should note that this procedure
+        <small>Users should note that this procedure
                may have bad space or time behavior on pathological inputs,
                depending on the implementation strategy.
         </small>
@@ -275,11 +326,11 @@ SPDX-License-Identifier: MIT
         then an error satisfying <code>raw-string-write-error?</code> is raised.
         </p>
         <p>This procedure returns an unspecified value.</p>
-        <small>Non-normative comment: without the error check, this is equivalent to
+        <small>Without the error check, this is equivalent to
                <code>(write-string (string-append "#\"" string<sub>2</sub> "\"" string<sub>1</sub> "\"" string<sub>2</sub> "\"") output-port)</code>.</small>
 
         <h3>Examples</h3>
-        <small><em>This section is non-normative.</em></small>
+        <em>This section is non-normative.</em>
         <pre><code>#&quot;&quot;&quot;&quot; ; → &quot;&quot;
 #&quot;&quot;\begin{document}&quot;&quot; ; → &quot;\\begin{document}&quot;
 #&quot;--&quot;)&quot;)&quot;)&quot;-&quot;&quot;--&quot; ; → &quot;)\&quot;)\&quot;)-\&quot;)&quot;
@@ -308,8 +359,7 @@ define : hello-name name
 &quot;wisp-EOS&quot;
 ; ⇒ &quot;\ndefine: hello-name name\n  string-append \&quot;Hello,\&quot; name \&quot;!\&quot;\n&quot;</code></pre>
         <p>
-            One use of raw strings is in “docstring” documentation, where <code>&quot;</code> and <code>\</code> may be
-            used to document strings. The following example is from Daphne Preston-Kendal:
+            One use of raw strings is in “docstring” documentation. The following example is from Daphne Preston-Kendal:
         </p>
         <pre><code>(define (parse-url url-string)
   #&quot;&quot;Given a URL as a string, returns a Parsed-URL record with the
