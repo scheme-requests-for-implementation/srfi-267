@@ -105,7 +105,7 @@ SPDX-License-Identifier: MIT
             <li>Draft #4 published: 2026-03-12</li>
             <li>Draft #5 published: 2026-04-11</li>
         </ul>
-        <h2>Abstract</h2>
+        <h2 id="abstract">Abstract</h2>
         <p>
             Raw strings are a lexical syntax for strings that do
             not interpret escapes inside of them and are useful in
@@ -118,7 +118,7 @@ SPDX-License-Identifier: MIT
             the string verbatim. The raw strings in this SRFI do not do
             any special whitespace handling.
         </p>
-        <h2>Rationale</h2>
+        <h2 id="rationale">Rationale</h2>
         <p>
             Many programming languages have raw string syntax: to name a few,
             <a href="https://doc.rust-lang.org/reference/tokens.html#grammar-RAW_STRING_LITERAL">Rust</a>,
@@ -237,7 +237,7 @@ SPDX-License-Identifier: MIT
             Equivalent syntax for string-notated bytevectors in
             <a href="https://srfi.schemers.org/srfi-207/">SRFI 207</a> or for vertical-bar identifiers is not included.
         </p>
-        <h2>Specification</h2>
+        <h2 id="specification">Specification</h2>
         <p>All text written in small text is non-normative.</p>
         <h3>Syntax</h3>
         <p>A raw string representing a string <var>S</var> is a sequence of characters
@@ -384,7 +384,7 @@ components of that URL.
 =&gt; #&lt;Parsed-URL protocol: &quot;https&quot; domain: &quot;example.org&quot;
                 path: &quot;/~smith/&quot; query: &quot;?record&quot;&gt;&quot;&quot;
   ...)</code></pre>
-        <h2>Implementation</h2>
+        <h2 id="implementation">Implementation</h2>
         <p>
             A portable implementation is impossible in general. However, some implementations, such as CHICKEN, Guile,
             Racket, and Sagittarius allow modifying the reader. A portable implementation of the procedures is
@@ -400,7 +400,7 @@ components of that URL.
             the raw string syntax work in CHICKEN 6. It also contains a patch for the Chez 10.3.0 reader
             that implements the reader syntax portion of this SRFI.
         </p>
-        <h2>Acknowledgments</h2>
+        <h2 id="acknowledgements">Acknowledgments</h2>
         <p>
             The original <a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2146.html">C++ proposal</a>
             was written by Bemen Dawes. The last
